@@ -107,3 +107,6 @@ Como administrador, quiero consultar métricas administrativas de uso, para cono
 
 ### RF-18: Administrar perfiles de usuario
 Como administrador, quiero administrar perfiles de usuario, para consultar usuarios registrados, actualizar su estado y cambiar sus roles.
+
+## Organizacion en Jira
+Acceder al link: [Tablero planeación Pokédex](https://hernan-sanchez.atlassian.net/jira/software/c/projects/HDX/boards/67/backlog?view=detail)
