@@ -5,6 +5,7 @@ import com.pokedex.controller.dto.request.PokemonRequest;
 import com.pokedex.controller.dto.response.PokemonResponse;
 import com.pokedex.controller.mapper.PokemonDtoMapper;
 import com.pokedex.core.model.Pokemon;
+import com.pokedex.core.service.interfaces.PokemonFilterCriteria;
 import com.pokedex.core.service.interfaces.PokemonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController 
 @RequiredArgsConstructor 
@@ -54,5 +56,16 @@ ResponseEntity.ok(pokemonService.findAll(pageable).map(mapper::toResponse));
     public ResponseEntity<Void> delete(Long id) {
         pokemonService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<List<PokemonResponse>> filter(
+            List<String> types, String region, Integer generation,
+            Boolean hasMega, Integer minTotalStats, Integer maxTotalStats) {
+        PokemonFilterCriteria criteria = new PokemonFilterCriteria(
+                types, region, generation, hasMega, minTotalStats, maxTotalStats);
+        List<PokemonResponse> result = pokemonService.filterByCriteria(criteria)
+                .stream().map(mapper::toResponse).toList();
+        return ResponseEntity.ok(result);
     }
 }
