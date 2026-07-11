@@ -15,7 +15,7 @@ import java.util.List;
 @SecurityRequirement(name = "Bearer Authentication")
 public interface FavoriteApi {
 
-    @Operation(summary = "Ver mis favoritos", description = "Retorna los IDs de los Pokémon favoritos del usuario autenticado.")
+    @Operation(summary = "VerMisFavoritos", description = "Retorn IDs de los Pokémon favoritos del usuario aut")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Lista de IDs de Pokémon favoritos"),
         @ApiResponse(responseCode = "401", description = "No autenticado")

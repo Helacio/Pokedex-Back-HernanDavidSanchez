@@ -31,7 +31,7 @@ public interface UserApi {
     ResponseEntity<Page<UserResponse>> findAllUsers(
             @PageableDefault(size = 20, sort = "id") Pageable pageable);
 
-    @Operation(summary = "Actualizar usuario", description = "Cambia el rol o el estado activo de un usuario. Solo ADMIN.")
+    @Operation(summary = "Actualizar usuario", description = "Cambia rol o el estado activo de un usuario Solo ADMIN")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Usuario actualizado",
             content = @Content(schema = @Schema(implementation = UserResponse.class))),
