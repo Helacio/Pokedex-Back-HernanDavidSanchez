@@ -8,6 +8,7 @@ import com.pokedex.core.port.PokemonPersistencePort;
 import com.pokedex.core.service.interfaces.PokemonFilterCriteria;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,153 +57,172 @@ class PokemonServiceImplTest {
                 .build();
     }
 
-    // ─── findAll ────────────────────────────────────────────────────────────
+    @Nested
+    @DisplayName("findAll")
+    class FindAll {
 
-    @Test
-    @DisplayName("findAll: debe retornar la página de Pokémon correctamente")
-    void findAll_returnsPage() {
-        Pageable pageable = PageRequest.of(0, 20);
-        Page<Pokemon> page = new PageImpl<>(List.of(pikachu));
-        when(pokemonPort.findAll(pageable)).thenReturn(page);
+        @Test
+        @DisplayName("Dado que existen Pokémon, cuando se listan, entonces retorna la página correctamente")
+        void givenPokemonExist_whenFindAll_thenReturnsPage() {
+            Pageable pageable = PageRequest.of(0, 20);
+            Page<Pokemon> page = new PageImpl<>(List.of(pikachu));
+            when(pokemonPort.findAll(pageable)).thenReturn(page);
 
-        Page<Pokemon> result = service.findAll(pageable);
+            Page<Pokemon> result = service.findAll(pageable);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).getName()).isEqualTo("Pikachu");
-        verify(pokemonPort).findAll(pageable);
+            assertThat(result).isNotNull();
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).getName()).isEqualTo("Pikachu");
+            verify(pokemonPort).findAll(pageable);
+        }
     }
 
-    // ─── findById ───────────────────────────────────────────────────────────
+    @Nested
+    @DisplayName("findById")
+    class FindById {
 
-    @Test
-    @DisplayName("findById: debe retornar el Pokémon cuando existe")
-    void findById_whenExists_returnsPokemon() {
-        when(pokemonPort.findById(1L)).thenReturn(Optional.of(pikachu));
+        @Test
+        @DisplayName("Dado un ID existente, cuando se busca, entonces retorna el Pokémon")
+        void givenExistingId_whenFindById_thenReturnsPokemon() {
+            when(pokemonPort.findById(1L)).thenReturn(Optional.of(pikachu));
 
-        Pokemon result = service.findById(1L);
+            Pokemon result = service.findById(1L);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo("Pikachu");
-        verify(pokemonPort).findById(1L);
+            assertThat(result).isNotNull();
+            assertThat(result.getName()).isEqualTo("Pikachu");
+            verify(pokemonPort).findById(1L);
+        }
+
+        @Test
+        @DisplayName("Dado un ID inexistente, cuando se busca, entonces lanza ResourceNotFoundException")
+        void givenNonExistingId_whenFindById_thenThrowsResourceNotFoundException() {
+            when(pokemonPort.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> service.findById(99L));
+            verify(pokemonPort).findById(99L);
+        }
     }
 
-    @Test
-    @DisplayName("findById: debe lanzar ResourceNotFoundException cuando no existe")
-    void findById_whenNotFound_throwsResourceNotFoundException() {
-        when(pokemonPort.findById(99L)).thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("findByNationalNumber")
+    class FindByNationalNumber {
 
-        assertThrows(ResourceNotFoundException.class, () -> service.findById(99L));
-        verify(pokemonPort).findById(99L);
+        @Test
+        @DisplayName("Dado un número nacional existente, cuando se busca, entonces retorna el Pokémon")
+        void givenExistingNumber_whenFindByNationalNumber_thenReturnsPokemon() {
+            when(pokemonPort.findByNationalNumber(25)).thenReturn(Optional.of(pikachu));
+
+            Pokemon result = service.findByNationalNumber(25);
+
+            assertThat(result).isNotNull();
+            assertThat(result.getNationalNumber()).isEqualTo(25);
+            verify(pokemonPort).findByNationalNumber(25);
+        }
+
+        @Test
+        @DisplayName("Dado un número nacional inexistente, cuando se busca, entonces lanza ResourceNotFoundException")
+        void givenNonExistingNumber_whenFindByNationalNumber_thenThrowsResourceNotFoundException() {
+            when(pokemonPort.findByNationalNumber(999)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> service.findByNationalNumber(999));
+        }
     }
 
-    // ─── findByNationalNumber ────────────────────────────────────────────────
+    @Nested
+    @DisplayName("create")
+    class Create {
 
-    @Test
-    @DisplayName("findByNationalNumber: debe retornar el Pokémon cuando existe")
-    void findByNationalNumber_whenExists_returnsPokemon() {
-        when(pokemonPort.findByNationalNumber(25)).thenReturn(Optional.of(pikachu));
+        @Test
+        @DisplayName("Dado un Pokémon con número único, cuando se crea, entonces lo guarda y retorna")
+        void givenUniqueNationalNumber_whenCreate_thenSavesAndReturns() {
+            when(pokemonPort.existsByNationalNumber(25)).thenReturn(false);
+            when(pokemonPort.save(pikachu)).thenReturn(pikachu);
 
-        Pokemon result = service.findByNationalNumber(25);
+            Pokemon result = service.create(pikachu);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getNationalNumber()).isEqualTo(25);
-        verify(pokemonPort).findByNationalNumber(25);
+            assertThat(result).isNotNull();
+            assertThat(result.getName()).isEqualTo("Pikachu");
+            verify(pokemonPort).save(pikachu);
+        }
+
+        @Test
+        @DisplayName("Dado un número nacional duplicado, cuando se crea, entonces lanza DuplicateResourceException")
+        void givenDuplicateNationalNumber_whenCreate_thenThrowsDuplicateResourceException() {
+            when(pokemonPort.existsByNationalNumber(25)).thenReturn(true);
+
+            assertThrows(DuplicateResourceException.class, () -> service.create(pikachu));
+            verify(pokemonPort, never()).save(any());
+        }
     }
 
-    @Test
-    @DisplayName("findByNationalNumber: debe lanzar ResourceNotFoundException cuando no existe")
-    void findByNationalNumber_whenNotFound_throwsResourceNotFoundException() {
-        when(pokemonPort.findByNationalNumber(999)).thenReturn(Optional.empty());
+    @Nested
+    @DisplayName("update")
+    class Update {
 
-        assertThrows(ResourceNotFoundException.class,
-                () -> service.findByNationalNumber(999));
+        @Test
+        @DisplayName("Dado un ID existente y datos válidos, cuando se actualiza, entonces retorna el Pokémon actualizado")
+        void givenExistingId_whenUpdate_thenUpdatesAndReturns() {
+            Pokemon updated = pikachu.toBuilder().name("Raichu").build();
+            when(pokemonPort.findById(1L)).thenReturn(Optional.of(pikachu));
+            when(pokemonPort.save(any(Pokemon.class))).thenReturn(updated);
+
+            Pokemon result = service.update(1L, pikachu);
+
+            assertThat(result).isNotNull();
+            verify(pokemonPort).findById(1L);
+            verify(pokemonPort).save(any(Pokemon.class));
+        }
+
+        @Test
+        @DisplayName("Dado un ID inexistente, cuando se actualiza, entonces lanza ResourceNotFoundException")
+        void givenNonExistingId_whenUpdate_thenThrowsResourceNotFoundException() {
+            when(pokemonPort.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> service.update(99L, pikachu));
+            verify(pokemonPort, never()).save(any());
+        }
     }
 
-    // ─── create ─────────────────────────────────────────────────────────────
+    @Nested
+    @DisplayName("delete")
+    class Delete {
 
-    @Test
-    @DisplayName("create: debe guardar y retornar el Pokémon cuando el número no existe")
-    void create_whenValid_saveAndReturn() {
-        when(pokemonPort.existsByNationalNumber(25)).thenReturn(false);
-        when(pokemonPort.save(pikachu)).thenReturn(pikachu);
+        @Test
+        @DisplayName("Dado un ID existente, cuando se elimina, entonces llama deleteById")
+        void givenExistingId_whenDelete_thenCallsDeleteById() {
+            when(pokemonPort.findById(1L)).thenReturn(Optional.of(pikachu));
 
-        Pokemon result = service.create(pikachu);
+            service.delete(1L);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo("Pikachu");
-        verify(pokemonPort).save(pikachu);
+            verify(pokemonPort).deleteById(1L);
+        }
+
+        @Test
+        @DisplayName("Dado un ID inexistente, cuando se elimina, entonces lanza ResourceNotFoundException")
+        void givenNonExistingId_whenDelete_thenThrowsResourceNotFoundException() {
+            when(pokemonPort.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(ResourceNotFoundException.class, () -> service.delete(99L));
+            verify(pokemonPort, never()).deleteById(any());
+        }
     }
 
-    @Test
-    @DisplayName("create: debe lanzar DuplicateResourceException si el número nacional ya existe")
-    void create_whenDuplicate_throwsDuplicateResourceException() {
-        when(pokemonPort.existsByNationalNumber(25)).thenReturn(true);
+    @Nested
+    @DisplayName("filterByCriteria")
+    class FilterByCriteria {
 
-        assertThrows(DuplicateResourceException.class, () -> service.create(pikachu));
-        verify(pokemonPort, never()).save(any());
-    }
+        @Test
+        @DisplayName("Dado criterios válidos, cuando se filtra, entonces retorna la lista filtrada")
+        void givenValidCriteria_whenFilterByCriteria_thenReturnsFilteredList() {
+            PokemonFilterCriteria criteria = new PokemonFilterCriteria(
+                    List.of("Electric"), "Kanto", 1, false, null, null);
+            when(pokemonPort.findByCriteria(criteria)).thenReturn(List.of(pikachu));
 
-    // ─── update ─────────────────────────────────────────────────────────────
+            List<Pokemon> result = service.filterByCriteria(criteria);
 
-    @Test
-    @DisplayName("update: debe actualizar y retornar el Pokémon cuando existe")
-    void update_whenExists_updatesAndReturns() {
-        Pokemon updated = pikachu.toBuilder().name("Raichu").build();
-        when(pokemonPort.findById(1L)).thenReturn(Optional.of(pikachu));
-        when(pokemonPort.save(any(Pokemon.class))).thenReturn(updated);
-
-        Pokemon result = service.update(1L, pikachu);
-
-        assertThat(result).isNotNull();
-        verify(pokemonPort).findById(1L);
-        verify(pokemonPort).save(any(Pokemon.class));
-    }
-
-    @Test
-    @DisplayName("update: debe lanzar ResourceNotFoundException si el Pokémon no existe")
-    void update_whenNotFound_throwsResourceNotFoundException() {
-        when(pokemonPort.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> service.update(99L, pikachu));
-        verify(pokemonPort, never()).save(any());
-    }
-
-    // ─── delete ─────────────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("delete: debe eliminar el Pokémon cuando existe")
-    void delete_whenExists_callsDeleteById() {
-        when(pokemonPort.findById(1L)).thenReturn(Optional.of(pikachu));
-
-        service.delete(1L);
-
-        verify(pokemonPort).deleteById(1L);
-    }
-
-    @Test
-    @DisplayName("delete: debe lanzar ResourceNotFoundException si el Pokémon no existe")
-    void delete_whenNotFound_throwsResourceNotFoundException() {
-        when(pokemonPort.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> service.delete(99L));
-        verify(pokemonPort, never()).deleteById(any());
-    }
-
-    // ─── filterByCriteria ───────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("filterByCriteria: debe retornar la lista filtrada del port")
-    void filterByCriteria_returnsList() {
-        PokemonFilterCriteria criteria = new PokemonFilterCriteria(
-                List.of("Electric"), "Kanto", 1, false, null, null);
-        when(pokemonPort.findByCriteria(criteria)).thenReturn(List.of(pikachu));
-
-        List<Pokemon> result = service.filterByCriteria(criteria);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Pikachu");
-        verify(pokemonPort).findByCriteria(criteria);
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getName()).isEqualTo("Pikachu");
+            verify(pokemonPort).findByCriteria(criteria);
+        }
     }
 }
