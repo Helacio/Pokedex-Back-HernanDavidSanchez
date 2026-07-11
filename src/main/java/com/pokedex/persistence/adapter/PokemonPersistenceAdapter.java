@@ -32,13 +32,13 @@ public class PokemonPersistenceAdapter implements PokemonPersistencePort {
 
     @Override
     public Page<Pokemon> findAll(Pageable pageable) {
-        return repository.findAll(pageable)
+        return repository.findAllWithTypes(pageable)
             .map(mapper::toDomain);
     }
 
     @Override
     public Optional<Pokemon> findByNationalNumber(Integer number) {
-        return repository.findByNationalNumber(number)
+        return repository.findByNationalNumberWithDetails(number)
             .map(mapper::toDomain);
     }
 
@@ -85,6 +85,7 @@ public class PokemonPersistenceAdapter implements PokemonPersistencePort {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
+        // findAll(Specification) tiene @EntityGraph en el repositorio — sin N+1
         return repository.findAll(spec).stream()
             .map(mapper::toDomain)
             .toList();
