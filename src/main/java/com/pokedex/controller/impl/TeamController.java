@@ -23,10 +23,10 @@ public class TeamController implements TeamApi {
     @Override
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<TeamResponse>> findMyTeams() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = getEmailFromContext();
         List<TeamResponse> teams = teamService.findAllByUserEmail(email)
                 .stream()
-                .map(t -> new TeamResponse(t.getId(), t.getName(), t.getPokemonIds()))
+                .map(this::toResponse)
                 .toList();
         return ResponseEntity.ok(teams);
     }
@@ -34,13 +34,40 @@ public class TeamController implements TeamApi {
     @Override
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<TeamResponse> create(TeamRequest request) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = getEmailFromContext();
         Team team = Team.builder()
                 .name(request.name())
                 .pokemonIds(request.pokemonIds())
                 .build();
         Team created = teamService.create(email, team);
-        TeamResponse response = new TeamResponse(created.getId(), created.getName(), created.getPokemonIds());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(created));
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<TeamResponse> update(Long id, TeamRequest request) {
+        String email = getEmailFromContext();
+        Team team = Team.builder()
+                .name(request.name())
+                .pokemonIds(request.pokemonIds())
+                .build();
+        Team updated = teamService.update(id, email, team);
+        return ResponseEntity.ok(toResponse(updated));
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> delete(Long id) {
+        String email = getEmailFromContext();
+        teamService.delete(id, email);
+        return ResponseEntity.noContent().build();
+    }
+
+    private String getEmailFromContext() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    private TeamResponse toResponse(Team team) {
+        return new TeamResponse(team.getId(), team.getName(), team.getPokemonIds());
     }
 }

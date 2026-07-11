@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -41,4 +38,24 @@ public interface TeamApi {
     })
     @PostMapping
     ResponseEntity<TeamResponse> create(@Valid @RequestBody TeamRequest request);
+
+    @Operation(summary = "Editar equipo", description = "Modifica el nombre o los Pokémon de un equipo propio.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Equipo actualizado",
+            content = @Content(schema = @Schema(implementation = TeamResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+        @ApiResponse(responseCode = "403", description = "El equipo no es tuyo"),
+        @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
+    })
+    @PutMapping("/{id}")
+    ResponseEntity<TeamResponse> update(@PathVariable Long id, @Valid @RequestBody TeamRequest request);
+
+    @Operation(summary = "Eliminar equipo", description = "Elimina un equipo propio del usuario autenticado.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Equipo eliminado"),
+        @ApiResponse(responseCode = "403", description = "El equipo no es tuyo"),
+        @ApiResponse(responseCode = "404", description = "Equipo no encontrado")
+    })
+    @DeleteMapping("/{id}")
+    ResponseEntity<Void> delete(@PathVariable Long id);
 }

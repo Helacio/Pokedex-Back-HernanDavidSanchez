@@ -6,7 +6,6 @@ import com.pokedex.core.model.Pokemon;
 import com.pokedex.core.port.PokemonPersistencePort;
 import com.pokedex.core.service.interfaces.PokemonFilterCriteria;
 import com.pokedex.core.service.interfaces.PokemonService;
-import com.pokedex.core.port.PokemonPersistencePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

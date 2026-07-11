@@ -2,7 +2,6 @@ package com.pokedex.controller.api;
 
 import com.pokedex.controller.dto.request.PokemonRequest;
 import com.pokedex.controller.dto.response.PokemonResponse;
-import com.pokedex.core.service.interfaces.PokemonFilterCriteria;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

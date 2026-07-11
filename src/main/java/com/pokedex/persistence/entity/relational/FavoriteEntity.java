@@ -5,48 +5,33 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "team")
+@Table(
+    name = "user_favorites",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "pokemon_id"})
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class TeamEntity {
+public class FavoriteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String name;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "team_pokemon",
-        joinColumns = @JoinColumn(name = "team_id"),
-        inverseJoinColumns = @JoinColumn(name = "pokemon_id")
-    )
-    @Builder.Default
-    private List<PokemonEntity> pokemons = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pokemon_id", nullable = false)
+    private PokemonEntity pokemon;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    public void updateName(String newName) {
-        this.name = newName;
-    }
-
-    public void updatePokemons(List<PokemonEntity> newPokemons) {
-        this.pokemons = newPokemons;
-    }
 }

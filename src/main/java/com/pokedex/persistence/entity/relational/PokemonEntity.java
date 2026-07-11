@@ -9,18 +9,18 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "pokemon", 
+@Table(name = "pokemon",
     indexes = { @Index(name = "idx_pokemon_number", columnList = "national_number")})
 @Getter
-// Lombok: genera SOLO getters (no setters en entidad JPA)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA necesita constructor sin  args
-@AllArgsConstructor(access = AccessLevel.PRIVATE)   // Solo Builder puede llamar al constructor completo
-
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-// Patrón Builder para construcción segura
-public class PokemonEntity { 
-@Id 
-@GeneratedValue(strategy = GenerationType.IDENTITY) 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class PokemonEntity {
+
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+@EqualsAndHashCode.Include
 private Long id; 
 @Column(name = "national_number", nullable = false, unique = true) 
 private Integer nationalNumber; 

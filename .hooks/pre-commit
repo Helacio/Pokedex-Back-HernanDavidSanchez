@@ -1,0 +1,40 @@
+#!/bin/sh
+# Pre-commit hook — Pokédex API
+# Corre únicamente los tests de reglas de negocio antes de cada commit.
+# Los tests de infraestructura (controllers, JWT, seguridad) se delegan al CI.
+#
+# Instalación: make setup-hooks  (o bien: cp .hooks/pre-commit .git/hooks/pre-commit)
+
+set -e
+
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+echo "${YELLOW}[pre-commit] Ejecutando verificaciones previas al commit...${NC}"
+
+# ── 1. Compilación rápida ────────────────────────────────────────────────────
+echo "${YELLOW}[pre-commit] 1/2 Compilando...${NC}"
+if ! mvn compile -q; then
+    echo "${RED}[pre-commit] FALLO: Error de compilación. Corrige antes de hacer commit.${NC}"
+    exit 1
+fi
+
+# ── 2. Tests de reglas de negocio ────────────────────────────────────────────
+# Solo servicios y validadores: lógica de dominio pura, sin infraestructura.
+# Excluidos intencionalmente: ControllerTest, JwtServiceTest, JwtAuthFilterTest,
+#   GlobalExceptionHandlerTest (se ejecutan en CI con mvn verify).
+echo "${YELLOW}[pre-commit] 2/2 Tests de negocio...${NC}"
+BUSINESS_TESTS="PokemonServiceImplTest,AuthServiceImplTest,TeamServiceImplTest,TeamValidatorTest,PokemonStatsTest"
+
+if ! mvn test \
+    -Dtest="${BUSINESS_TESTS}" \
+    -DfailIfNoSpecifiedTests=false \
+    -q; then
+    echo "${RED}[pre-commit] FALLO: Tests de reglas de negocio fallidos. Corrige antes de hacer commit.${NC}"
+    exit 1
+fi
+
+echo "${GREEN}[pre-commit] Todo en orden. Procediendo con el commit.${NC}"
+exit 0
