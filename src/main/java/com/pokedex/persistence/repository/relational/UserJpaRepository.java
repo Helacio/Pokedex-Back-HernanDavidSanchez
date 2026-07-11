@@ -5,5 +5,10 @@ import com.pokedex.persistence.entity.relational.UserEntity;
 import java.util.Optional;
 
 public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
+
     Optional<UserEntity> findByEmail(String email);
+
+    long countByRole(UserEntity.Role role);
+
+    long countByRoleAndActive(UserEntity.Role role, boolean active);
 }

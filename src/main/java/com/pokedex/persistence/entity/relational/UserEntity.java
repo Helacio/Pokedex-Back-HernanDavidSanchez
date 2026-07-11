@@ -6,15 +6,17 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users") // "user" es palabra reservada en PostgreSQL, se usa "users"
+@Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA necesita constructor sin args
-@AllArgsConstructor(access = AccessLevel.PRIVATE)   // Solo Builder puede llamar al constructor completo
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
@@ -30,9 +32,21 @@ public class UserEntity {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    public void updateRole(Role newRole) {
+        this.role = newRole;
+    }
+
+    public void updateActive(boolean newActive) {
+        this.active = newActive;
+    }
 
     // Roles del sistema según sección 1.2 del plan de trabajo
     public enum Role {
