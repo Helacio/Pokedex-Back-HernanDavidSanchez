@@ -29,11 +29,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.pokedex.core.service.interfaces.StatsService;
+
 @ExtendWith(MockitoExtension.class)
 class PokemonServiceImplTest {
 
     @Mock
     private PokemonPersistencePort pokemonPort;
+
+    @Mock
+    private StatsService statsService;
 
     @InjectMocks
     private PokemonServiceImpl service;

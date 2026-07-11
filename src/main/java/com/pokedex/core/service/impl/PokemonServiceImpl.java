@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.pokedex.core.service.interfaces.StatsService;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
 public class PokemonServiceImpl implements PokemonService {
 
     private final PokemonPersistencePort pokemonPort;
+    private final StatsService statsService; 
 
     @Override
     public Page<Pokemon> findAll(Pageable pageable) {
@@ -31,10 +33,18 @@ public class PokemonServiceImpl implements PokemonService {
     @Override
     public Pokemon findById(Long id) {
         log.debug("Buscando Pokemon con id: {}", id);
-        return pokemonPort.findById(id)
+        Pokemon pokemon = pokemonPort.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Pokemon", "id", id));
-    }
 
+        try {
+            statsService.registerView(pokemon.getId(), pokemon.getName());
+        } catch (Exception ex) {
+            // Si Mongo falla, no debe tumbar la consulta principal — solo se pierde el conteo de esa vista
+            log.warn("No se pudo registrar la vista del Pokémon {}: {}", pokemon.getId(), ex.getMessage());
+        }
+
+        return pokemon;
+    }
     @Override
     public Pokemon findByNationalNumber(Integer number) {
         log.debug("Buscando Pokemon con número nacional: {}", number);

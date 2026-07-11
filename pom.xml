@@ -196,6 +196,8 @@
 						<exclude>**/entity/**</exclude>
 						<exclude>**/document/**</exclude>
 						<exclude>**/mapper/**</exclude>
+						<exclude>**/model/PokemonView.*</exclude>
+						<exclude>**/model/AdminMetrics.*</exclude> 
 
 						<!-- Contratos e interfaces: sin implementación propia -->
 						<exclude>**/port/**</exclude>
