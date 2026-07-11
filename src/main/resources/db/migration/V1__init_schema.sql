@@ -5,13 +5,13 @@
 -- PokemonEntity, PokemonStatsEntity
 -- ============================================================
 
--- 1. REGION (sin dependencias)
+-- 1. REGION 
 CREATE TABLE region (
     id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(100) NOT NULL UNIQUE
 );
 
--- 2. TYPE (sin dependencias)
+-- 2. TYPE
 CREATE TABLE type (
     id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(50) NOT NULL UNIQUE

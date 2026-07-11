@@ -4,8 +4,6 @@ import com.pokedex.controller.dto.request.LoginRequest;
 import com.pokedex.controller.dto.request.RegisterRequest;
 import com.pokedex.controller.dto.response.AuthResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,18 +20,17 @@ public interface AuthApi {
 
     @Operation(summary = "Registrar nuevo usuario", description = "Crea una cuenta y retorna JWT.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Usuario registrado",
-            content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+        @ApiResponse(responseCode = "201", description = "Usuario registrado"),
         @ApiResponse(responseCode = "400", description = "Datos inválidos"),
         @ApiResponse(responseCode = "409", description = "Email ya registrado")
     })
     @PostMapping("/register")
     ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request);
 
+    
     @Operation(summary = "Iniciar sesión", description = "Autentica al usuario y retorna JWT.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Login exitoso",
-            content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+        @ApiResponse(responseCode = "200", description = "Login exitoso"),
         @ApiResponse(responseCode = "401", description = "Credenciales incorrectas")
     })
     @PostMapping("/login")
