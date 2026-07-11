@@ -36,6 +36,47 @@ El documento completo de requerimientos funcionales y no funcionales está dispo
 
 [📄 docs/requirements/Requerimientos.md](docs/requirements/Requerimientos.md)
 
+### Estado de cumplimiento (backend)
+
+#### Cumplidos
+
+- **RF-01** Crear perfil de usuario
+- **RF-02** Iniciar sesión mediante Gmail
+- **RF-03** Registrar Pokémon
+- **RF-04** Actualizar Pokémon
+- **RF-11** Gestionar Pokémon favoritos
+- **RF-12** Crear equipo Pokémon
+- **RF-13** Consultar equipos Pokémon
+- **RF-14** Editar equipo Pokémon
+- **RF-15** Eliminar equipo Pokémon
+- **RF-17** Consultar métricas administrativas
+- **RF-18** Administrar perfiles de usuario
+
+#### Parcialmente cumplidos
+
+- **RF-05** Eliminar Pokémon: existe eliminación física, pero no desactivación ni bloqueo si está en equipos
+- **RF-06** Mostrar listado de Pokémon: existe listado paginado, pero es público y no exige autenticación
+- **RF-07** Buscar Pokémon: hay búsqueda por número en servicio, pero no hay endpoint por nombre ni coincidencia parcial
+- **RF-08** Consultar detalle de Pokémon: devuelve tipos y estadísticas, pero no habilidades ni evolución
+- **RF-09** Filtrar Pokémon: filtra por tipo, región, generación, hasMega y rango de stats; faltan habilidad, ataque y rol competitivo
+- **RF-10** Ordenar listado de Pokémon: el listado principal admite paginación y orden; el filtro no ordena ni permite orden por estadística individual
+- **RF-16** Consultar estadísticas de Pokémon: existe ranking de más consultados; no hay tasa de elección en equipos
+
+#### No cumplidos
+
+- Búsqueda por nombre parcial (**RF-07**)
+- Filtros por habilidad, ataque y rol competitivo (**RF-09**)
+- Desactivación de Pokémon (**RF-05**)
+- Tasa de elección en equipos (**RF-16**)
+- Habilidades y evolución en el detalle (**RF-08**)
+
+#### Requerimientos no funcionales
+
+- **RFN-01** Rendimiento: sin pruebas que validen el límite de 2,5 segundos
+- **RFN-02** Visual: corresponde al frontend
+- **RFN-03** Multidispositivo: corresponde al frontend
+- **RFN-04** Seguridad: parcialmente cumplido en backend (BCrypt, JWT, OAuth2, roles)
+
 ## Diagramas
 
 ### Diagrama de Contexto
@@ -51,6 +92,14 @@ El documento completo de requerimientos funcionales y no funcionales está dispo
 ![Historia de Usuario Autenticado 1](docs/images/HistoriaUsuarioAutenticado1.png)
 
 ![Historia de Usuario Autenticado 2](docs/images/HistoriaUsuarioAutenticado2.png)
+
+### Diagrama de Componentes.
+
+![](docs/images/DataUser.png)
+
+### Diagrama de Entidad - Relación.
+![](docs\images\EntidadRelacion.png)
+
 
 **Hisotorias de Usuario detalladas:**
 
